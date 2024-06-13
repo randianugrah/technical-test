@@ -9,6 +9,7 @@ import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
 import ButtonGroup from "@mui/material/ButtonGroup";
+import { useNavigate } from "react-router-dom";
 
 import { useDispatch, useSelector } from "react-redux";
 import { deleteUser, loadUsers } from "../redux/actions";
@@ -46,8 +47,9 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 
 const Home = () => {
   // const classes = useStyles();
+  let navigate = useNavigate();
   const dispatch = useDispatch();
-  const { users, isLoading } = useSelector((state) => state.data);
+  const { users, isLoading } = useSelector((state) => state.userData);
 
   useEffect(() => {
     dispatch(loadUsers());
@@ -65,7 +67,16 @@ const Home = () => {
 
   return (
     <div>
-      <h2>Daftar Pegawai</h2>
+      <h2 className="title">Daftar Pegawai</h2>
+      <div style={{ marginBottom: "8px", float: "left" }}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => navigate("/add-user")}
+        >
+          Tambah Anggota
+        </Button>
+      </div>
       <TableContainer component={Paper}>
         <Table
           // className={classes.table}
@@ -110,7 +121,7 @@ const Home = () => {
                       variant="contained"
                       aria-label="contained primary button group"
                     >
-                      <Button style={{ marginRight: "2px" }} color="info">
+                      <Button style={{ marginRight: "2px" }} color="warning">
                         Edit
                       </Button>
                       <Button

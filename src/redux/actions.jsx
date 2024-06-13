@@ -10,6 +10,11 @@ const userDeleted = () => ({
   type: types.DELETE_USERS,
 });
 
+const getProvinces = (provinces) => ({
+  type: types.GET_PROVINCES,
+  payload: provinces,
+});
+
 export const loadUsers = () => {
   return function (dispatch) {
     axios
@@ -30,6 +35,20 @@ export const deleteUser = (id) => {
         console.log("resp", resp);
         dispatch(userDeleted());
         dispatch(loadUsers());
+      })
+      .catch((error) => console.log(error));
+  };
+};
+
+// Load Data API Emfisa
+
+export const loadProvinces = () => {
+  return function (dispatch) {
+    axios
+      .get("https://www.emsifa.com/api-wilayah-indonesia/api/provinces.json")
+      .then((resp) => {
+        console.log("resp", resp);
+        dispatch(getProvinces(resp.data));
       })
       .catch((error) => console.log(error));
   };
