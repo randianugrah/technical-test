@@ -15,6 +15,16 @@ const getProvinces = (provinces) => ({
   payload: provinces,
 });
 
+const getRegencies = (regencies) => ({
+  type: types.GET_REGENCIES,
+  payload: regencies,
+});
+
+const getDistricts = (districts) => ({
+  type: types.GET_DISTRICTS,
+  payload: districts,
+});
+
 export const loadUsers = () => {
   return function (dispatch) {
     axios
@@ -49,6 +59,34 @@ export const loadProvinces = () => {
       .then((resp) => {
         console.log("resp", resp);
         dispatch(getProvinces(resp.data));
+      })
+      .catch((error) => console.log(error));
+  };
+};
+
+export const loadRegencies = (province_id) => {
+  return function (dispatch) {
+    axios
+      .get(
+        `https://www.emsifa.com/api-wilayah-indonesia/api/regencies/${province_id}.json`
+      )
+      .then((resp) => {
+        console.log("resp", resp);
+        dispatch(getRegencies(resp.data));
+      })
+      .catch((error) => console.log(error));
+  };
+};
+
+export const loadDistricts = (regency_id) => {
+  return function (dispatch) {
+    axios
+      .get(
+        `https://www.emsifa.com/api-wilayah-indonesia/api/districts/${regency_id}.json`
+      )
+      .then((resp) => {
+        console.log("resp", resp);
+        dispatch(getDistricts(resp.data));
       })
       .catch((error) => console.log(error));
   };

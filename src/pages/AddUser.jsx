@@ -1,39 +1,10 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
 
 import { useDispatch, useSelector } from "react-redux";
-import { loadProvinces } from "../redux/actions";
-
-// import { styled } from "@mui/material/styles";
-// import Table from "@mui/material/Table";
-// import TableBody from "@mui/material/TableBody";
-// import TableCell, { tableCellClasses } from "@mui/material/TableCell";
-// import TableContainer from "@mui/material/TableContainer";
-// import TableHead from "@mui/material/TableHead";
-// import TableRow from "@mui/material/TableRow";
-// import Paper from "@mui/material/Paper";
-
-// const StyledTableCell = styled(TableCell)(({ theme }) => ({
-//   [`&.${tableCellClasses.head}`]: {
-//     backgroundColor: theme.palette.common.black,
-//     color: theme.palette.common.white,
-//   },
-//   [`&.${tableCellClasses.body}`]: {
-//     fontSize: 14,
-//   },
-// }));
-
-// const StyledTableRow = styled(TableRow)(({ theme }) => ({
-//   "&:nth-of-type(odd)": {
-//     backgroundColor: theme.palette.action.hover,
-//   },
-//   // hide last border
-//   "&:last-child td, &:last-child th": {
-//     border: 0,
-//   },
-// }));
+import { loadProvinces, loadRegencies, loadDistricts } from "../redux/actions";
 
 const provinsi = [
   { id: 1, name: "Riau" },
@@ -46,44 +17,57 @@ const provinsi = [
 const AddUser = () => {
   const dispatch = useDispatch();
   const { provinces } = useSelector((state) => state.provinceData);
+  const { regencies } = useSelector((state) => state.regencyData);
+  const { districts } = useSelector((state) => state.districtData);
+
+  const [selectedProvince, setSelectedProvince] = useState("");
+  const [selectedRegency, setSelectedRegency] = useState("");
 
   useEffect(() => {
     dispatch(loadProvinces());
   }, [dispatch]);
 
+  useEffect(() => {
+    dispatch(loadRegencies(selectedProvince));
+  }, [dispatch, selectedProvince]);
+
+  useEffect(() => {
+    dispatch(loadDistricts(selectedRegency));
+  }, [dispatch, selectedRegency]);
+
+  // useEffect(() => {
+  //   if (selectedProvince) {
+  //     console.log("Selected Regencyyy:", selectedProvince); // Logging selectedRegency
+  //     dispatch(loadRegencies(selectedProvince));
+  //   }
+  // }, [dispatch, selectedProvince]);
+
+  const provprops = {
+    options: provinces,
+    getOptionLabel: (options) => options.name,
+  };
+
+  const regprops = {
+    options: regencies,
+    getOptionLabel: (options) => options.name,
+  };
+
+  const disprops = {
+    options: districts,
+    getOptionLabel: (options) => options.name,
+  };
+
+  const getProvince = (data) => {
+    setSelectedProvince(data.id);
+  };
+
+  const getRegency = (data) => {
+    setSelectedRegency(data.id);
+  };
+
   return (
     <div>
-      {/* <TableContainer component={Paper}>
-        <Table
-          // className={classes.table}
-          sx={{ minWidth: 1200 }}
-          aria-label="customized table"
-        >
-          <TableHead>
-            <TableRow>
-              <StyledTableCell>No.</StyledTableCell>
-              <StyledTableCell align="center">Nama</StyledTableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {provinces &&
-              provinces.map((province, index) => (
-                <StyledTableRow key={province.id}>
-                  <StyledTableCell component="th" scope="row">
-                    {index + 1}
-                  </StyledTableCell>
-                  <StyledTableCell>{province.name}</StyledTableCell>
-                </StyledTableRow>
-              ))}
-          </TableBody>
-        </Table>
-      </TableContainer> */}
       <h2 className="title">Tambah Anggota</h2>
-      {/* <ul>
-        {provinces.map((province) => (
-          <li key={province.id}>{province.name}</li>
-        ))}
-      </ul> */}
       <div>
         <Box
           component="form"
@@ -107,18 +91,21 @@ const AddUser = () => {
           <Autocomplete
             disablePortal
             id="combo-box-demo"
-            options={provinces.map((province) => province.name)}
+            {...provprops}
             sx={{ width: "40ch" }}
             renderInput={(params) => <TextField {...params} label="Provinsi" />}
+            onChange={(event, value) => getProvince(value)}
           />
           <Autocomplete
             disablePortal
             id="combo-box-demo"
-            options={provinces.map((province) => province.name)}
+            {...regprops}
+            // options={regencies.map((regency) => regency.name)}
             sx={{ width: "40ch" }}
             renderInput={(params) => (
               <TextField {...params} label="Kabupaten/Kota" />
             )}
+            onChange={(event, value) => getRegency(value)}
           />
         </div>
         <br />
@@ -133,7 +120,8 @@ const AddUser = () => {
           <Autocomplete
             disablePortal
             id="combo-box-demo"
-            options={provinsi.map((option) => option.name)}
+            {...disprops}
+            // options={districts.map((district) => district.id)}
             sx={{ width: "40ch" }}
             renderInput={(params) => (
               <TextField {...params} label="Kecamatan" />
