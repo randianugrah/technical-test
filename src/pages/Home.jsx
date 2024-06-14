@@ -69,7 +69,7 @@ const Home = () => {
 
   return (
     <div>
-      <h2 className="title">Daftar Pegawai</h2>
+      <h1 className="title">Daftar Pegawai</h1>
       <div style={{ marginBottom: "8px", float: "left" }}>
         <Button
           variant="contained"
@@ -82,7 +82,7 @@ const Home = () => {
       <TableContainer component={Paper}>
         <Table
           // className={classes.table}
-          sx={{ minWidth: 1200 }}
+          sx={{ minWidth: 1000 }}
           aria-label="customized table"
         >
           <TableHead>
@@ -123,7 +123,11 @@ const Home = () => {
                       variant="contained"
                       aria-label="contained primary button group"
                     >
-                      <Button style={{ marginRight: "2px" }} color="warning">
+                      <Button
+                        style={{ marginRight: "2px" }}
+                        color="warning"
+                        onClick={() => navigate(`/edit-user/${user.id}`)}
+                      >
                         Edit
                       </Button>
                       <Button

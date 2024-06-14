@@ -3,7 +3,7 @@ import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
 import Button from "@mui/material/Button";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -11,10 +11,11 @@ import {
   loadRegencies,
   loadDistricts,
   loadVillages,
-  addUser,
+  getSingleUser,
+  updateUser,
 } from "../redux/actions";
 
-const AddUser = () => {
+const EditUser = () => {
   let navigate = useNavigate();
   const [state, setState] = useState({
     nama: "",
@@ -41,7 +42,8 @@ const AddUser = () => {
   });
 
   const [error, setError] = useState("");
-
+  let { id } = useParams();
+  const { user } = useSelector((state) => state.userData);
   const { nama, jalan, provinsi, kabupaten, kecamatan, kelurahan } = state;
 
   const handleInputChange = (e) => {
@@ -65,7 +67,7 @@ const AddUser = () => {
     ) {
       setError("Please fill all fields");
     } else {
-      dispatch(addUser(state));
+      dispatch(updateUser(state, id));
       setError("");
       navigate("/");
     }
@@ -85,6 +87,16 @@ const AddUser = () => {
   useEffect(() => {
     dispatch(loadProvinces());
   }, [dispatch]);
+
+  useEffect(() => {
+    dispatch(getSingleUser(id));
+  }, []);
+
+  useEffect(() => {
+    if (user) {
+      setState({ ...user });
+    }
+  }, [user]);
 
   useEffect(() => {
     dispatch(loadRegencies(selectedProvince));
@@ -156,9 +168,8 @@ const AddUser = () => {
 
   return (
     <div>
-      <h1 className="title">Tambah Anggota</h1>
+      <h1 className="title">Edit Anggota</h1>
       {error && <h3 style={{ color: "red" }}>{error}</h3>}
-
       <form action="" noValidate autoComplete="off" onSubmit={handleSubmit}>
         <div>
           <Box
@@ -173,7 +184,7 @@ const AddUser = () => {
               id="standard-basic"
               label="Nama"
               variant="filled"
-              defaultValue={state.nama}
+              defaultValue={nama}
               type="text"
               name="nama"
               onChange={handleInputChange}
@@ -182,7 +193,7 @@ const AddUser = () => {
               id="standard-basic"
               label="Jalan"
               variant="filled"
-              defaultValue={state.jalan}
+              defaultValue={jalan}
               type="text"
               name="jalan"
               onChange={handleInputChange}
@@ -270,20 +281,20 @@ const AddUser = () => {
         </div>
         <div style={{ marginTop: "16px", float: "center" }}>
           <Button
-            style={{ marginRight: "20px", float: "center" }}
+            style={{ marginLeft: "14px", float: "center" }}
             variant="contained"
             color="error"
             onClick={() => navigate("/")}
           >
-            Kembali
+            Batal
           </Button>
           <Button
-            style={{ marginRight: "8px", float: "center" }}
+            style={{ marginLeft: "16px", float: "center" }}
             variant="contained"
             color="primary"
             type="submit"
           >
-            Simpan
+            Update
           </Button>
         </div>
       </form>
@@ -291,4 +302,4 @@ const AddUser = () => {
   );
 };
 
-export default AddUser;
+export default EditUser;
