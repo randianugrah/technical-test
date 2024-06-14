@@ -61,7 +61,9 @@ const Home = () => {
 
   const handleDelete = (id) => {
     if (window.confirm("Apakah anda mau menghapus anggota?")) {
-      dispatch(deleteUser(id));
+      dispatch(deleteUser(id)).then(() => {
+        window.location.reload();
+      });
     }
   };
 
