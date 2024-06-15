@@ -46,33 +46,6 @@ const EditUser = () => {
   const { user } = useSelector((state) => state.userData);
   const { nama, jalan, provinsi, kabupaten, kecamatan, kelurahan } = state;
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setState((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
-  };
-
-  const handleSubmit = (e) => {
-    // e.preventDefault();
-    console.log(e);
-    if (
-      !nama ||
-      !jalan ||
-      !provinsi ||
-      !kabupaten ||
-      !kecamatan ||
-      !kelurahan
-    ) {
-      setError("Please fill all fields");
-    } else {
-      dispatch(updateUser(state, id));
-      setError("");
-      navigate("/");
-    }
-  };
-
   const dispatch = useDispatch();
   const { provinces } = useSelector((state) => state.provinceData);
   const { regencies } = useSelector((state) => state.regencyData);
@@ -85,11 +58,12 @@ const EditUser = () => {
   const [selectedVillage, setSelectedVillage] = useState("");
 
   useEffect(() => {
-    dispatch(loadProvinces());
-  }, [dispatch]);
+    console.log("State updated:", state);
+  }, [state]);
 
   useEffect(() => {
     dispatch(getSingleUser(id));
+    // eslint-disable-next-line
   }, []);
 
   useEffect(() => {
@@ -99,36 +73,38 @@ const EditUser = () => {
   }, [user]);
 
   useEffect(() => {
-    dispatch(loadRegencies(selectedProvince));
-  }, [dispatch, selectedProvince]);
+    dispatch(loadProvinces());
+    if (selectedProvince) {
+      dispatch(loadRegencies(selectedProvince));
+    }
+    if (selectedRegency) {
+      dispatch(loadDistricts(selectedRegency));
+    }
+    if (selectedDistrict) {
+      dispatch(loadVillages(selectedDistrict));
+    }
+  }, [dispatch, selectedProvince, selectedRegency, selectedDistrict]);
 
-  useEffect(() => {
-    dispatch(loadDistricts(selectedRegency));
-  }, [dispatch, selectedRegency]);
+  const createProps = (getOptionLabel) => (options) => ({
+    options: options,
+    getOptionLabel: getOptionLabel,
+  });
 
-  useEffect(() => {
-    dispatch(loadVillages(selectedDistrict));
-  }, [dispatch, selectedDistrict]);
+  const getOptionLabel = (option) => option.name;
+  const provprops = createProps(getOptionLabel)(provinces);
+  const regprops = createProps(getOptionLabel)(regencies);
+  const disprops = createProps(getOptionLabel)(districts);
+  const vilprops = createProps(getOptionLabel)(villages);
 
-  const provprops = {
-    options: provinces,
-    getOptionLabel: (options) => options.name,
-  };
-
-  const regprops = {
-    options: regencies,
-    getOptionLabel: (options) => options.name,
-  };
-  const vilprops = {
-    options: villages,
-    getOptionLabel: (options) => options.name,
-  };
-
-  const disprops = {
-    options: districts,
-    getOptionLabel: (options) => options.name,
-  };
   //
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setState((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
+
   const getProvince = (data) => {
     setSelectedProvince(data.id);
     setState((prevState) => ({
@@ -136,10 +112,6 @@ const EditUser = () => {
       provinsi: data,
     }));
   };
-
-  useEffect(() => {
-    console.log("State updated:", state);
-  }, [state]);
 
   const getRegency = (data) => {
     setSelectedRegency(data.id);
@@ -166,25 +138,42 @@ const EditUser = () => {
     console.log(selectedVillage);
   };
 
+  const handleSubmit = (e) => {
+    // e.preventDefault();
+    console.log(e);
+    if (
+      !nama ||
+      !jalan ||
+      !provinsi ||
+      !kabupaten ||
+      !kecamatan ||
+      !kelurahan
+    ) {
+      setError("Please fill all fields");
+    } else {
+      dispatch(updateUser(state, id));
+      setError("");
+      navigate("/");
+    }
+  };
+
   return (
     <div>
-      <h1 className="title">Edit Anggota</h1>
+      <h1 className="title">Edit Pegawai</h1>
       {error && <h3 style={{ color: "red" }}>{error}</h3>}
       <form action="" noValidate autoComplete="off" onSubmit={handleSubmit}>
         <div>
           <Box
-            component="form"
             sx={{
-              "& > :not(style)": { m: 1, width: "40ch" },
+              "& > :not(style)": { m: 1, width: "50ch" },
             }}
-            noValidate
-            autoComplete="off"
           >
             <TextField
               id="standard-basic"
               label="Nama"
               variant="filled"
-              defaultValue={nama}
+              // defaultValue={nama}
+              value={nama}
               type="text"
               name="nama"
               onChange={handleInputChange}
@@ -193,26 +182,24 @@ const EditUser = () => {
               id="standard-basic"
               label="Jalan"
               variant="filled"
-              defaultValue={jalan}
+              value={jalan}
               type="text"
               name="jalan"
               onChange={handleInputChange}
             />
           </Box>
-          <div
-            style={{
-              justifyContent: "center",
-              display: "flex",
-              gap: "16px",
-              marginTop: "16px",
+          <Box
+            display="flex"
+            justifyContent="center"
+            sx={{
+              "& > :not(style)": { m: 1, width: "50ch" },
             }}
           >
             <Autocomplete
-              // disablePortal
+              disablePortal
               id="combo-box-demo"
               {...provprops}
-              sx={{ width: "40ch" }}
-              // freeSolo
+              freeSolo
               isOptionEqualToValue={(options, value) =>
                 options.valueOf === value.valueOf
               }
@@ -220,82 +207,79 @@ const EditUser = () => {
                 <TextField {...params} label="Provinsi" />
               )}
               onChange={(event, value) => getProvince(value)}
-              defaultValue={provinsi}
+              value={provinsi}
             />
             <Autocomplete
               disablePortal
               id="combo-box-demo"
               {...regprops}
+              freeSolo
               isOptionEqualToValue={(options, value) =>
                 options.valueOf === value.valueOf
               }
-              // options={regencies.map((regency) => regency.name)}
-              sx={{ width: "40ch" }}
               renderInput={(params) => (
                 <TextField {...params} label="Kabupaten/Kota" />
               )}
               onChange={(event, value) => getRegency(value)}
-              defaultValue={kabupaten}
+              value={kabupaten}
             />
-          </div>
-          <br />
-          <div
-            style={{
-              justifyContent: "center",
-              display: "flex",
-              gap: "16px",
-              // marginTop: "4px",
+          </Box>
+          <Box
+            display="flex"
+            justifyContent="center"
+            sx={{
+              "& > :not(style)": { m: 1, width: "50ch" },
             }}
           >
             <Autocomplete
               disablePortal
               id="combo-box-demo"
+              freeSolo
               {...disprops}
               isOptionEqualToValue={(options, value) =>
                 options.valueOf === value.valueOf
               }
-              // options={districts.map((district) => district.id)}
-              sx={{ width: "40ch" }}
               renderInput={(params) => (
                 <TextField {...params} label="Kecamatan" />
               )}
               onChange={(event, value) => getDistrict(value)}
-              defaultValue={kelurahan}
+              value={kecamatan}
             />
             <Autocomplete
               disablePortal
               {...vilprops}
+              freeSolo
               id="combo-box-demo"
               isOptionEqualToValue={(options, value) =>
                 options.valueOf === value.valueOf
               }
               // options={villages.map((village) => village.name)}
-              sx={{ width: "40ch" }}
+
               renderInput={(params) => (
                 <TextField {...params} label="Kelurahan" />
               )}
               onChange={(event, value) => getVillages(value)}
-              defaultValue={kelurahan}
+              value={kelurahan}
             />
-          </div>
-        </div>
-        <div style={{ marginTop: "16px", float: "center" }}>
-          <Button
-            style={{ marginLeft: "14px", float: "center" }}
-            variant="contained"
-            color="error"
-            onClick={() => navigate("/")}
+          </Box>
+          <Box
+            display="flex"
+            justifyContent="center"
+            sx={{
+              "& > :not(style)": { m: 1, width: "10ch", textTransform: "none" },
+            }}
           >
-            Batal
-          </Button>
-          <Button
-            style={{ marginLeft: "16px", float: "center" }}
-            variant="contained"
-            color="primary"
-            type="submit"
-          >
-            Update
-          </Button>
+            <Button
+              variant="contained"
+              color="error"
+              onClick={() => navigate("/")}
+            >
+              Batal
+            </Button>
+            <Button variant="contained" color="primary" type="submit">
+              Update
+            </Button>
+          </Box>
         </div>
       </form>
     </div>

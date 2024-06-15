@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import Box from "@mui/material/Box";
+// import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
 import Button from "@mui/material/Button";
 import { useNavigate } from "react-router-dom";
-
+import Box from "@mui/material/Box";
 import { useDispatch, useSelector } from "react-redux";
 import {
   loadProvinces,
@@ -41,35 +41,7 @@ const AddUser = () => {
   });
 
   const [error, setError] = useState("");
-
   const { nama, jalan, provinsi, kabupaten, kecamatan, kelurahan } = state;
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setState((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
-  };
-
-  const handleSubmit = (e) => {
-    // e.preventDefault();
-    console.log(e);
-    if (
-      !nama ||
-      !jalan ||
-      !provinsi ||
-      !kabupaten ||
-      !kecamatan ||
-      !kelurahan
-    ) {
-      setError("Please fill all fields");
-    } else {
-      dispatch(addUser(state));
-      setError("");
-      navigate("/");
-    }
-  };
 
   const dispatch = useDispatch();
   const { provinces } = useSelector((state) => state.provinceData);
@@ -83,40 +55,42 @@ const AddUser = () => {
   const [selectedVillage, setSelectedVillage] = useState("");
 
   useEffect(() => {
+    console.log("State updated:", state);
+  }, [state]);
+
+  useEffect(() => {
     dispatch(loadProvinces());
-  }, [dispatch]);
+    if (selectedProvince) {
+      dispatch(loadRegencies(selectedProvince));
+    }
+    if (selectedRegency) {
+      dispatch(loadDistricts(selectedRegency));
+    }
+    if (selectedDistrict) {
+      dispatch(loadVillages(selectedDistrict));
+    }
+  }, [dispatch, selectedProvince, selectedRegency, selectedDistrict]);
 
-  useEffect(() => {
-    dispatch(loadRegencies(selectedProvince));
-  }, [dispatch, selectedProvince]);
+  const createProps = (getOptionLabel) => (options) => ({
+    options: options,
+    getOptionLabel: getOptionLabel,
+  });
 
-  useEffect(() => {
-    dispatch(loadDistricts(selectedRegency));
-  }, [dispatch, selectedRegency]);
+  const getOptionLabel = (option) => option.name;
+  const provprops = createProps(getOptionLabel)(provinces);
+  const regprops = createProps(getOptionLabel)(regencies);
+  const disprops = createProps(getOptionLabel)(districts);
+  const vilprops = createProps(getOptionLabel)(villages);
 
-  useEffect(() => {
-    dispatch(loadVillages(selectedDistrict));
-  }, [dispatch, selectedDistrict]);
-
-  const provprops = {
-    options: provinces,
-    getOptionLabel: (options) => options.name,
-  };
-
-  const regprops = {
-    options: regencies,
-    getOptionLabel: (options) => options.name,
-  };
-  const vilprops = {
-    options: villages,
-    getOptionLabel: (options) => options.name,
-  };
-
-  const disprops = {
-    options: districts,
-    getOptionLabel: (options) => options.name,
-  };
   //
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setState((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
+
   const getProvince = (data) => {
     setSelectedProvince(data.id);
     setState((prevState) => ({
@@ -124,10 +98,6 @@ const AddUser = () => {
       provinsi: data,
     }));
   };
-
-  useEffect(() => {
-    console.log("State updated:", state);
-  }, [state]);
 
   const getRegency = (data) => {
     setSelectedRegency(data.id);
@@ -154,20 +124,35 @@ const AddUser = () => {
     console.log(selectedVillage);
   };
 
+  const handleSubmit = (e) => {
+    // e.preventDefault();
+    console.log(e);
+    if (
+      !nama ||
+      !jalan ||
+      !provinsi ||
+      !kabupaten ||
+      !kecamatan ||
+      !kelurahan
+    ) {
+      setError("Please fill all fields");
+    } else {
+      dispatch(addUser(state));
+      setError("");
+      navigate("/");
+    }
+  };
+
   return (
     <div>
-      <h1 className="title">Tambah Anggota</h1>
+      <h1 className="title">Tambah Pegawai</h1>
       {error && <h3 style={{ color: "red" }}>{error}</h3>}
-
       <form action="" noValidate autoComplete="off" onSubmit={handleSubmit}>
         <div>
           <Box
-            component="form"
             sx={{
-              "& > :not(style)": { m: 1, width: "40ch" },
+              "& > :not(style)": { m: 1, width: "50ch" },
             }}
-            noValidate
-            autoComplete="off"
           >
             <TextField
               id="standard-basic"
@@ -188,20 +173,19 @@ const AddUser = () => {
               onChange={handleInputChange}
             />
           </Box>
-          <div
-            style={{
-              justifyContent: "center",
-              display: "flex",
-              gap: "16px",
-              marginTop: "16px",
+          <Box
+            display="flex"
+            justifyContent="center"
+            sx={{
+              "& > :not(style)": { m: 1, width: "50ch" },
             }}
           >
             <Autocomplete
-              // disablePortal
+              disablePortal
               id="combo-box-demo"
               {...provprops}
-              sx={{ width: "40ch" }}
-              // freeSolo
+              // sx={{ width: "40ch" }}
+              freeSolo
               isOptionEqualToValue={(options, value) =>
                 options.valueOf === value.valueOf
               }
@@ -209,36 +193,38 @@ const AddUser = () => {
                 <TextField {...params} label="Provinsi" />
               )}
               onChange={(event, value) => getProvince(value)}
-              defaultValue={provinsi}
+              value={provinsi}
             />
+
             <Autocomplete
               disablePortal
               id="combo-box-demo"
+              freeSolo
               {...regprops}
               isOptionEqualToValue={(options, value) =>
                 options.valueOf === value.valueOf
               }
               // options={regencies.map((regency) => regency.name)}
-              sx={{ width: "40ch" }}
+              // sx={{ width: "40ch" }}
               renderInput={(params) => (
                 <TextField {...params} label="Kabupaten/Kota" />
               )}
               onChange={(event, value) => getRegency(value)}
-              defaultValue={kabupaten}
+              value={kabupaten}
             />
-          </div>
-          <br />
-          <div
-            style={{
-              justifyContent: "center",
-              display: "flex",
-              gap: "16px",
-              // marginTop: "4px",
+          </Box>
+
+          <Box
+            display="flex"
+            justifyContent="center"
+            sx={{
+              "& > :not(style)": { m: 1, width: "50ch" },
             }}
           >
             <Autocomplete
               disablePortal
               id="combo-box-demo"
+              freeSolo
               {...disprops}
               isOptionEqualToValue={(options, value) =>
                 options.valueOf === value.valueOf
@@ -249,42 +235,42 @@ const AddUser = () => {
                 <TextField {...params} label="Kecamatan" />
               )}
               onChange={(event, value) => getDistrict(value)}
-              defaultValue={kelurahan}
+              value={kelurahan}
             />
             <Autocomplete
               disablePortal
               {...vilprops}
               id="combo-box-demo"
+              freeSolo
               isOptionEqualToValue={(options, value) =>
                 options.valueOf === value.valueOf
               }
-              // options={villages.map((village) => village.name)}
               sx={{ width: "40ch" }}
               renderInput={(params) => (
                 <TextField {...params} label="Kelurahan" />
               )}
               onChange={(event, value) => getVillages(value)}
-              defaultValue={kelurahan}
+              value={kelurahan}
             />
-          </div>
-        </div>
-        <div style={{ marginTop: "16px", float: "center" }}>
-          <Button
-            style={{ marginRight: "20px", float: "center" }}
-            variant="contained"
-            color="error"
-            onClick={() => navigate("/")}
+          </Box>
+          <Box
+            display="flex"
+            justifyContent="center"
+            sx={{
+              "& > :not(style)": { m: 1, width: "10ch", textTransform: "none" },
+            }}
           >
-            Kembali
-          </Button>
-          <Button
-            style={{ marginRight: "8px", float: "center" }}
-            variant="contained"
-            color="primary"
-            type="submit"
-          >
-            Simpan
-          </Button>
+            <Button
+              variant="contained"
+              color="error"
+              onClick={() => navigate("/")}
+            >
+              Kembali
+            </Button>
+            <Button variant="contained" color="primary" type="submit">
+              Simpan
+            </Button>
+          </Box>
         </div>
       </form>
     </div>

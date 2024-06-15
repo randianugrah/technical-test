@@ -101,6 +101,7 @@ export const updateUser = (user, id) => {
       .then((resp) => {
         console.log("resp", resp);
         dispatch(userUpdated());
+        dispatch(loadUsers());
       })
       .catch((error) => console.log(error));
   };

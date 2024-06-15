@@ -14,24 +14,25 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { deleteUser, loadUsers } from "../redux/actions";
 
-// const useButtonStyles = makeStyles((theme) => ({
-//   root: {
-//     display: "flex",
-//     flexDirection: "column",
-//     alignItems: "center",
-//     "& > *": {
-//       margin: theme.spacing(1),
-//     },
-//   },
-// }));
+const columnHeaders = [
+  "No.",
+  "Nama",
+  "Jalan",
+  "Provinsi",
+  "Kota/Kabupaten",
+  "Kecamatan",
+  "Kelurahan",
+  "Action",
+];
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
     backgroundColor: theme.palette.common.black,
     color: theme.palette.common.white,
+    fontSize: 15,
   },
   [`&.${tableCellClasses.body}`]: {
-    fontSize: 14,
+    fontSize: 15,
   },
 }));
 
@@ -46,10 +47,13 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 }));
 
 const Home = () => {
-  // const classes = useStyles();
   let navigate = useNavigate();
   const dispatch = useDispatch();
   const { users, isLoading } = useSelector((state) => state.userData);
+
+  const capitalize = (str) => {
+    return str.toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase());
+  };
 
   useEffect(() => {
     dispatch(loadUsers());
@@ -61,9 +65,7 @@ const Home = () => {
 
   const handleDelete = (id) => {
     if (window.confirm("Apakah anda mau menghapus anggota?")) {
-      dispatch(deleteUser(id)).then(() => {
-        window.location.reload();
-      });
+      dispatch(deleteUser(id));
     }
   };
 
@@ -72,29 +74,26 @@ const Home = () => {
       <h1 className="title">Daftar Pegawai</h1>
       <div style={{ marginBottom: "8px", float: "left" }}>
         <Button
+          style={{ textTransform: "none", fontWeight: "bold" }}
           variant="contained"
           color="primary"
           onClick={() => navigate("/add-user")}
         >
-          Tambah Anggota
+          Tambah
         </Button>
       </div>
       <TableContainer component={Paper}>
-        <Table
-          // className={classes.table}
-          sx={{ minWidth: 1000 }}
-          aria-label="customized table"
-        >
+        <Table sx={{ minWidth: 1000 }} aria-label="customized table">
           <TableHead>
             <TableRow>
-              <StyledTableCell>No.</StyledTableCell>
-              <StyledTableCell align="center">Nama</StyledTableCell>
-              <StyledTableCell align="center">Jalan</StyledTableCell>
-              <StyledTableCell align="center">Provinsi</StyledTableCell>
-              <StyledTableCell align="center">Kota/Kabupaten</StyledTableCell>
-              <StyledTableCell align="center">Kecamatan</StyledTableCell>
-              <StyledTableCell align="center">Kelurahan</StyledTableCell>
-              <StyledTableCell align="center">Action</StyledTableCell>
+              {columnHeaders.map((header) => (
+                <StyledTableCell
+                  key={header}
+                  style={{ textAlign: "center", fontWeight: "bold" }}
+                >
+                  {header}
+                </StyledTableCell>
+              ))}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -107,30 +106,37 @@ const Home = () => {
                   <StyledTableCell>{user.nama}</StyledTableCell>
                   <StyledTableCell align="center">{user.jalan}</StyledTableCell>
                   <StyledTableCell align="center">
-                    {user.provinsi.name}
+                    {capitalize(user.provinsi.name)}
                   </StyledTableCell>
                   <StyledTableCell align="center">
-                    {user.kabupaten.name}
+                    {capitalize(user.kabupaten.name)}
                   </StyledTableCell>
                   <StyledTableCell align="center">
-                    {user.kecamatan.name}
+                    {capitalize(user.kecamatan.name)}
                   </StyledTableCell>
                   <StyledTableCell align="center">
-                    {user.kelurahan.name}
+                    {capitalize(user.kelurahan.name)}
                   </StyledTableCell>
                   <StyledTableCell align="center">
                     <ButtonGroup
                       variant="contained"
                       aria-label="contained primary button group"
+                      sx={{
+                        "& > :not(style)": {
+                          width: "7ch",
+                          fontSize: "12px",
+                        },
+                      }}
                     >
                       <Button
-                        style={{ marginRight: "2px" }}
-                        color="warning"
+                        style={{ marginRight: "2px", textTransform: "none" }}
+                        color="info"
                         onClick={() => navigate(`/edit-user/${user.id}`)}
                       >
                         Edit
                       </Button>
                       <Button
+                        style={{ textTransform: "none" }}
                         color="error"
                         onClick={() => handleDelete(user.id)}
                       >
