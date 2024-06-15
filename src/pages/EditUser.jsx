@@ -17,6 +17,7 @@ import {
 
 const EditUser = () => {
   let navigate = useNavigate();
+
   const [state, setState] = useState({
     nama: "",
     jalan: "",
@@ -173,7 +174,7 @@ const EditUser = () => {
               label="Nama"
               variant="filled"
               // defaultValue={nama}
-              value={nama}
+              value={nama || ""}
               type="text"
               name="nama"
               onChange={handleInputChange}
@@ -182,7 +183,7 @@ const EditUser = () => {
               id="standard-basic"
               label="Jalan"
               variant="filled"
-              value={jalan}
+              value={jalan || ""}
               type="text"
               name="jalan"
               onChange={handleInputChange}
@@ -207,7 +208,7 @@ const EditUser = () => {
                 <TextField {...params} label="Provinsi" />
               )}
               onChange={(event, value) => getProvince(value)}
-              value={provinsi}
+              value={provinsi || null}
             />
             <Autocomplete
               disablePortal
@@ -221,7 +222,7 @@ const EditUser = () => {
                 <TextField {...params} label="Kabupaten/Kota" />
               )}
               onChange={(event, value) => getRegency(value)}
-              value={kabupaten}
+              value={kabupaten || null}
             />
           </Box>
           <Box
@@ -243,7 +244,7 @@ const EditUser = () => {
                 <TextField {...params} label="Kecamatan" />
               )}
               onChange={(event, value) => getDistrict(value)}
-              value={kecamatan}
+              value={kecamatan || null}
             />
             <Autocomplete
               disablePortal
@@ -259,7 +260,7 @@ const EditUser = () => {
                 <TextField {...params} label="Kelurahan" />
               )}
               onChange={(event, value) => getVillages(value)}
-              value={kelurahan}
+              value={kelurahan || null}
             />
           </Box>
           <Box
@@ -272,7 +273,8 @@ const EditUser = () => {
             <Button
               variant="contained"
               color="error"
-              onClick={() => navigate("/")}
+              onClick={() => navigate(-1)}
+              // onClick={() => history.goBack()}
             >
               Batal
             </Button>

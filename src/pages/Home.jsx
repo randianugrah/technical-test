@@ -49,7 +49,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 const Home = () => {
   let navigate = useNavigate();
   const dispatch = useDispatch();
-  const { users, isLoading } = useSelector((state) => state.userData);
+  const { users } = useSelector((state) => state.userData);
 
   const capitalize = (str) => {
     return str.toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase());
@@ -58,10 +58,6 @@ const Home = () => {
   useEffect(() => {
     dispatch(loadUsers());
   }, [dispatch]);
-
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
 
   const handleDelete = (id) => {
     if (window.confirm("Apakah anda mau menghapus anggota?")) {
@@ -96,6 +92,7 @@ const Home = () => {
               ))}
             </TableRow>
           </TableHead>
+
           <TableBody>
             {users &&
               users.map((user, index) => (

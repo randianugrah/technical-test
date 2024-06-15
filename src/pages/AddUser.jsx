@@ -56,6 +56,7 @@ const AddUser = () => {
 
   useEffect(() => {
     console.log("State updated:", state);
+    // eslint-disable-next-line
   }, [state]);
 
   useEffect(() => {
@@ -124,9 +125,8 @@ const AddUser = () => {
     console.log(selectedVillage);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = () => {
     // e.preventDefault();
-    console.log(e);
     if (
       !nama ||
       !jalan ||
